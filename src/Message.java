@@ -1,4 +1,3 @@
-package com.javarush.task.task30.task3008;
 import org.json.JSONObject;
 
 import java.io.Serializable;

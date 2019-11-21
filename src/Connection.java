@@ -1,7 +1,3 @@
-import com.javarush.task.task30.task3008.HardMessage;
-import com.javarush.task.task30.task3008.Message;
-import com.javarush.task.task30.task3008.MessageType;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

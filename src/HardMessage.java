@@ -1,8 +1,3 @@
-package com.javarush.task.task30.task3008;
-
-import java.util.ArrayList;
-import java.util.List;
-
 public class HardMessage extends Message {
     String[] stuff;
     public HardMessage() {

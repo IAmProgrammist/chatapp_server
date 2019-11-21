@@ -1,6 +1,3 @@
-import com.javarush.task.task30.task3008.LoginNPassword;
-
-import java.io.UnsupportedEncodingException;
 import java.sql.*;
 import java.sql.Connection;
 import java.sql.DriverManager;

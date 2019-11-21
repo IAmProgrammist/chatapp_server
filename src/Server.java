@@ -1,8 +1,3 @@
-import com.javarush.task.task30.task3008.HardMessage;
-import com.javarush.task.task30.task3008.LoginNPassword;
-import com.javarush.task.task30.task3008.Message;
-import com.javarush.task.task30.task3008.MessageType;
-
 import java.io.*;
 import java.net.*;
 import java.util.*;
