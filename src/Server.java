@@ -188,8 +188,8 @@ public class Server {
                     ConsoleHelper.writeMessage(String.format("В комнату вошел пользователь с именем: '%s' и паролем: '%s'", roomlo.getLogin(), roomlo.getPassword()));
                 }
                 user.setConnection(connection);
-                user.setRoomId(String.valueOf(roomId));
                 while (true) {
+                    user.setRoomId(String.valueOf(roomId));
                     connection.sendHistory(peepeepoopoo, 50, roomId);
                     connectionMap.put(user.getName(), user);
                     notifyUsers(connection, user);
@@ -303,8 +303,6 @@ public class Server {
                             }
                         }
                     }
-                    user.setRoomId(String.valueOf(roomId));
-                    connectionMap.put(user.getName(), user);
                 }
             } catch (IOException e) {
                 try {
