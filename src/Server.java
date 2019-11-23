@@ -552,7 +552,7 @@ public class Server {
                                         HardMessage msg = new HardMessage();
                                         msg.setType(MessageType.CHECK_CONN);
                                         klol.getValue().getConnection().send(msg);
-                                        Thread.sleep(5000);
+                                        Thread.sleep(20000);
                                         if (connected) {
                                             //ConsoleHelper.writeMessage(klol.getKey() + " is ok.");
                                             connected = false;
