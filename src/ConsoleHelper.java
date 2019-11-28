@@ -5,39 +5,45 @@ import java.util.Date;
 
 public class ConsoleHelper {
     private static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-    public static void writeMessage(String message){
+
+    public static void writeMessage(String message) {
         System.out.println(getCurrentTime() + " " + message);
     }
-    public static String readString(){
+
+    public static String readString() {
         String message = "";
-        while(true){
+        while (true) {
             try {
                 message = reader.readLine();
                 break;
             } catch (IOException e) {
-                    System.out.println("Произошла ошибка при попытке ввода текста. Попробуйте еще раз.");
+                System.out.println("Произошла ошибка при попытке ввода текста. Попробуйте еще раз.");
             }
         }
         return message;
     }
-    public static int readInt(){
+
+    public static int readInt() {
         int i = 0;
-        while(true) {
+        while (true) {
             try {
                 i = Integer.parseInt(readString());
                 break;
-            }catch (NumberFormatException e){
+            } catch (NumberFormatException e) {
                 System.out.println("Произошла ошибка при попытке ввода числа. Попробуйте еще раз.");
             }
-        }return i;
+        }
+        return i;
     }
+
     private static String getCurrentTime() {
         Date date = new Date();
         String result = String.format("<%d.%d.%d %d:%d:%d.%d>", date.getDate(), date.getMonth() + 1, date.getYear() + 1900, date.getHours(), date.getMinutes(), date.getSeconds(), getMilliseconds(date));
         return result;
     }
-    private static Integer getMilliseconds(Date date){
+
+    private static Integer getMilliseconds(Date date) {
         int n = (int) (date.getTime() % 1000);
-        return n<0 ? n+1000 : n;
+        return n < 0 ? n + 1000 : n;
     }
 }

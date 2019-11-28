@@ -13,6 +13,7 @@ public class User implements Serializable {
         this.connection = connection;
         this.name = name;
     }
+
     public Connection getConnection() {
         return connection;
     }

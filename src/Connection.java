@@ -23,7 +23,7 @@ public class Connection implements Closeable {
     }
 
     public void send(Message message) throws IOException, TimeToExitBruhException {
-        if(work) {
+        if (work) {
             try {
                 if (!(message.getType() == MessageType.HARD_MESSAGE_WITH_ARRAY_OF_ROOMS || message.getType() == MessageType.USERS_LIST || message.getType() == MessageType.HISTORY)) {
                     JSONObject messageJSON = new JSONObject();
@@ -62,11 +62,12 @@ public class Connection implements Closeable {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             throw new TimeToExitBruhException();
         }
     }
-    public void sendRooms(List<Room> rooms){
+
+    public void sendRooms(List<Room> rooms) {
         synchronized (writer) {
             JSONArray jsonArray = new JSONArray();
             for (Room m : rooms) {
@@ -80,22 +81,23 @@ public class Connection implements Closeable {
             writer.println(res);
         }
     }
-    public void sendHistory(Map<Date, Message> messages, int number, int roomId){
-        synchronized (writer){
+
+    public void sendHistory(Map<Date, Message> messages, int number, int roomId) {
+        synchronized (writer) {
             List<JSONObject> h = new ArrayList<>();
             JSONArray jsonArray = new JSONArray();
             int i = 1;
-            for(Map.Entry<Date, Message> j: messages.entrySet()){
-                if(Integer.parseInt(j.getValue().getRoomId()) == roomId) {
+            for (Map.Entry<Date, Message> j : messages.entrySet()) {
+                if (Integer.parseInt(j.getValue().getRoomId()) == roomId) {
                     h.add(j.getValue().createJSON(j.getKey()));
                     i++;
                 }
-                if(i == number){
+                if (i == number) {
                     break;
                 }
             }
             Collections.reverse(h);
-            for(JSONObject a: h){
+            for (JSONObject a : h) {
                 jsonArray.put(a);
             }
             JSONObject root = new JSONObject();
@@ -108,7 +110,7 @@ public class Connection implements Closeable {
     }
 
     public Message receive() throws Exception, TimeToExitBruhException {
-        if(work) {
+        if (work) {
             String result = "";
             synchronized (reader) {
                 try {
@@ -169,17 +171,17 @@ public class Connection implements Closeable {
                     return null;
                 }
             }
-        }else{
+        } else {
             throw new TimeToExitBruhException();
         }
 
     }
 
-    public SocketAddress getRemoteSocketAddress(){
+    public SocketAddress getRemoteSocketAddress() {
         return this.socket.getRemoteSocketAddress();
     }
 
-    public void close() throws IOException{
+    public void close() throws IOException {
         writer.close();
         reader.close();
         this.socket.close();

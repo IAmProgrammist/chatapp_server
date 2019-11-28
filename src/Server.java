@@ -27,7 +27,8 @@ public class Server {
             }
             return room.toArray(new String[0]);
         }
-        public void throwException() throws TimeToExitBruhException{
+
+        public void throwException() throws TimeToExitBruhException {
             throw new TimeToExitBruhException();
         }
 
@@ -48,11 +49,11 @@ public class Server {
                 Integer roomId = null;
                 while (true) {
                     msg.setType(MessageType.IGNORE);
-                        try {
-                            msg = (HardMessage) connection.receive();
-                        }catch (Exception e){
-                            throw new TimeToExitBruhException();
-                        }
+                    try {
+                        msg = (HardMessage) connection.receive();
+                    } catch (Exception e) {
+                        throw new TimeToExitBruhException();
+                    }
                     if (msg.getType() == MessageType.LOGIN_ROOM_IN_CHECK) {
                         connection.sendRooms(rooms);
                     } else if (msg.getType() == MessageType.CREATE_ROOM_IN_CHECK) {
@@ -109,8 +110,8 @@ public class Server {
                                 Message tmpMessage = new Message();
                                 tmpMessage.setType(MessageType.CHECK_ROOM_LOGIN_EXISTS);
                                 tmpMessage.setData(roomlo.getLogin());
-                                for(Room m : rooms){
-                                    if(m.getName().equals(roomlo.getLogin())){
+                                for (Room m : rooms) {
+                                    if (m.getName().equals(roomlo.getLogin())) {
                                         roomId = m.getRoomId();
                                     }
                                 }
@@ -134,8 +135,8 @@ public class Server {
                                     Message tmpMessage = new Message();
                                     tmpMessage.setType(MessageType.CHECK_ROOM_LOGIN_EXISTS);
                                     tmpMessage.setData(roomlo.getLogin());
-                                    for(Room m : rooms){
-                                        if(m.getName().equals(roomlo.getLogin())){
+                                    for (Room m : rooms) {
+                                        if (m.getName().equals(roomlo.getLogin())) {
                                             roomId = m.getRoomId();
                                         }
                                     }
@@ -155,8 +156,8 @@ public class Server {
                             tmpMessage.setData(roomcr.getLogin());
                             rooms.add(new Room(roomcr.getLogin(), roomcr.getPassword(), ++roomsId));
                             MySQLConnUtils.createRoom(roomcr.getLogin(), roomcr.getPassword(), String.valueOf(roomsId));
-                            for(Room m : rooms){
-                                if(m.getName().equals(roomcr.getLogin())){
+                            for (Room m : rooms) {
+                                if (m.getName().equals(roomcr.getLogin())) {
                                     roomId = m.getRoomId();
                                 }
                             }
@@ -168,8 +169,8 @@ public class Server {
                             tmpMessage.setData(roomcr.getLogin());
                             rooms.add(new Room(roomcr.getLogin(), roomcr.getPassword(), ++roomsId));
                             MySQLConnUtils.createRoom(roomcr.getLogin(), roomcr.getPassword(), String.valueOf(roomsId));
-                            for(Room m : rooms){
-                                if(m.getName().equals(roomcr.getLogin())){
+                            for (Room m : rooms) {
+                                if (m.getName().equals(roomcr.getLogin())) {
                                     roomId = m.getRoomId();
                                 }
                             }
@@ -203,20 +204,20 @@ public class Server {
                     Thread checker = new Thread(new Runnable() {
                         @Override
                         public void run() {
-                            while(!isInterrupted()){
+                            while (!isInterrupted()) {
                                 try {
                                     Message msg = new Message();
                                     msg.setType(MessageType.CHECK_CONN);
                                     try {
                                         connection.send(msg);
-                                    }catch (TimeToExitBruhException e){
+                                    } catch (TimeToExitBruhException e) {
                                         break;
                                     }
                                     Thread.sleep(30000);
-                                    if(!connected) {
+                                    if (!connected) {
                                         connection.throwException();
                                     }
-                                }catch (Exception e){
+                                } catch (Exception e) {
                                     connection.throwException();
                                 }
                             }
@@ -242,11 +243,11 @@ public class Server {
                     sendBroadcastMessage(tmppMessage);
                     while (true) {
                         msg.setType(MessageType.IGNORE);
-                            try {
-                                msg = (HardMessage) connection.receive();
-                            }catch (Exception e){
-                                throw new TimeToExitBruhException();
-                            }
+                        try {
+                            msg = (HardMessage) connection.receive();
+                        } catch (Exception e) {
+                            throw new TimeToExitBruhException();
+                        }
                         if (msg.getType() == MessageType.LOGIN_ROOM_IN_CHECK) {
                             connection.sendRooms(rooms);
                         } else if (msg.getType() == MessageType.CREATE_ROOM_IN_CHECK) {
@@ -267,8 +268,8 @@ public class Server {
                                     Message tmpMessage = new Message();
                                     tmpMessage.setType(MessageType.CHECK_ROOM_LOGIN_EXISTS);
                                     tmpMessage.setData(roomlo.getLogin());
-                                    for(Room m : rooms){
-                                        if(m.getName().equals(roomlo.getLogin())){
+                                    for (Room m : rooms) {
+                                        if (m.getName().equals(roomlo.getLogin())) {
                                             roomId = m.getRoomId();
                                         }
                                     }
@@ -292,8 +293,8 @@ public class Server {
                                         Message tmpMessage = new Message();
                                         tmpMessage.setType(MessageType.CHECK_ROOM_LOGIN_EXISTS);
                                         tmpMessage.setData(roomlo.getLogin());
-                                        for(Room m : rooms){
-                                            if(m.getName().equals(roomlo.getLogin())){
+                                        for (Room m : rooms) {
+                                            if (m.getName().equals(roomlo.getLogin())) {
                                                 roomId = m.getRoomId();
                                             }
                                         }
@@ -313,8 +314,8 @@ public class Server {
                                 tmpMessage.setData(roomcr.getLogin());
                                 rooms.add(new Room(roomcr.getLogin(), roomcr.getPassword(), ++roomsId));
                                 MySQLConnUtils.createRoom(roomcr.getLogin(), roomcr.getPassword(), String.valueOf(roomsId));
-                                for(Room m : rooms){
-                                    if(m.getName().equals(roomcr.getLogin())){
+                                for (Room m : rooms) {
+                                    if (m.getName().equals(roomcr.getLogin())) {
                                         roomId = m.getRoomId();
                                     }
                                 }
@@ -326,8 +327,8 @@ public class Server {
                                 tmpMessage.setData(roomcr.getLogin());
                                 rooms.add(new Room(roomcr.getLogin(), roomcr.getPassword(), ++roomsId));
                                 MySQLConnUtils.createRoom(roomcr.getLogin(), roomcr.getPassword(), String.valueOf(roomsId));
-                                for(Room m : rooms){
-                                    if(m.getName().equals(roomcr.getLogin())){
+                                for (Room m : rooms) {
+                                    if (m.getName().equals(roomcr.getLogin())) {
                                         roomId = m.getRoomId();
                                     }
                                 }
@@ -358,7 +359,7 @@ public class Server {
                     peepeepoopoo.put(new Date(), tmppMessage);
                     sendBroadcastMessage(tmppMessage);
                     ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
-                }catch (Exception e1){
+                } catch (Exception e1) {
                     ConsoleHelper.writeMessage("Пользователь отключился.");
                 }
                 this.stop();
@@ -380,7 +381,7 @@ public class Server {
                     peepeepoopoo.put(new Date(), tmppMessage);
                     sendBroadcastMessage(tmppMessage);
                     ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
-                }catch (Exception e1){
+                } catch (Exception e1) {
                     ConsoleHelper.writeMessage("Пользователь отключился.");
                 }
                 this.stop();
@@ -400,7 +401,7 @@ public class Server {
                     peepeepoopoo.put(new Date(), tmppMessage);
                     sendBroadcastMessage(tmppMessage);
                     ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
-                }catch (Exception e1){
+                } catch (Exception e1) {
                     ConsoleHelper.writeMessage("Пользователь отключился.");
                 }
                 this.stop();
@@ -409,8 +410,8 @@ public class Server {
 
         private static void removeUser(String name, Integer roomId) {
             Room room = null;
-            for(Room m: rooms){
-                if(m.getRoomId() == roomId){
+            for (Room m : rooms) {
+                if (m.getRoomId() == roomId) {
                     room = m;
                 }
             }
@@ -420,10 +421,11 @@ public class Server {
                 e.printStackTrace();
             }
         }
+
         private void addUser(String name, Integer roomId) {
             Room room = null;
-            for(Room m: rooms){
-                if(m.getRoomId() == roomId){
+            for (Room m : rooms) {
+                if (m.getRoomId() == roomId) {
                     room = m;
                 }
             }
@@ -437,8 +439,8 @@ public class Server {
         private String[] getUsersList(User user) {
             Integer a = Integer.valueOf(user.getRoomId());
             Room room = null;
-            for(Room m: rooms){
-                if(a == m.getRoomId()){
+            for (Room m : rooms) {
+                if (a == m.getRoomId()) {
                     room = m;
                     break;
                 }
@@ -447,8 +449,8 @@ public class Server {
         }
 
         private Integer getRoomByLoginAndPassword(String login, String password) {
-            for (Room m : rooms){
-                if(m.getName().equalsIgnoreCase(login) && m.getPassword().equals(password)){
+            for (Room m : rooms) {
+                if (m.getName().equalsIgnoreCase(login) && m.getPassword().equals(password)) {
                     return m.getRoomId();
                 }
             }
@@ -456,8 +458,8 @@ public class Server {
         }
 
         private Integer getRoomIdByLogin(String login) {
-            for (Room m : rooms){
-                if(m.getName().equalsIgnoreCase(login)){
+            for (Room m : rooms) {
+                if (m.getName().equalsIgnoreCase(login)) {
                     return m.getRoomId();
                 }
             }
@@ -465,8 +467,8 @@ public class Server {
         }
 
         private boolean doesRoomHavePassword(String login) {
-            for(Room m : rooms){
-                if(m.getName().equals(login) && !m.getPassword().equals("")){
+            for (Room m : rooms) {
+                if (m.getName().equals(login) && !m.getPassword().equals("")) {
                     return true;
                 }
             }
@@ -474,14 +476,13 @@ public class Server {
         }
 
         private boolean doesRoomExist(String login) {
-            for(Room m : rooms){
-                if(m.getName().equalsIgnoreCase(login)){
+            for (Room m : rooms) {
+                if (m.getName().equalsIgnoreCase(login)) {
                     return true;
                 }
             }
             return false;
         }
-
 
 
         private boolean doesAccountExist(String login, String username) {
@@ -504,13 +505,12 @@ public class Server {
         }
 
 
-
         private void serverMainLoop(Connection connection, User user) throws IOException, ClassNotFoundException, TimeToExitBruhException {
             while (true) {
                 Message message = new Message();
                 try {
                     message = connection.receive();
-                }catch (Exception e){
+                } catch (Exception e) {
                     throw new TimeToExitBruhException();
                 }
                 if (message.getType() == MessageType.TEXT) {
@@ -533,10 +533,11 @@ public class Server {
                     tmpMessage.setRoomId(user.getRoomId());
                     connection.send(tmpMessage);
                     break;
-                } else if(message.getType().equals(MessageType.CONN_CONN)){
+                } else if (message.getType().equals(MessageType.CONN_CONN)) {
                     connected = true;
-                }else{
-                    ;;
+                } else {
+                    ;
+                    ;
                 }
             }
         }
@@ -565,13 +566,13 @@ public class Server {
 
     }
 
-    public static void sendBroadcastMessage(Message message){
+    public static void sendBroadcastMessage(Message message) {
         try {
             for (User user : connectionMap.values()) {
                 if (user.getRoomId().equals(message.getRoomId())) {
                     try {
                         user.getConnection().send(message);
-                    }catch (TimeToExitBruhException e){
+                    } catch (TimeToExitBruhException e) {
                         connectionMap.remove(user);
                     }
                 }

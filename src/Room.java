@@ -33,29 +33,32 @@ public class Room {
         return roomId;
     }
 
-    public Integer getUsersNumber(){
+    public Integer getUsersNumber() {
         return users.size();
     }
+
     public void addUser(String name) throws Exception {
-        if(users.contains(name)){
+        if (users.contains(name)) {
             ConsoleHelper.writeMessage("User already in room " + name);
-        }else {
+        } else {
             users.add(name);
         }
     }
-    public void removeUser (String name) throws Exception {
-        if(!users.contains(name)){
+
+    public void removeUser(String name) throws Exception {
+        if (!users.contains(name)) {
             ConsoleHelper.writeMessage("There is no such user in room " + name);
-        }else {
+        } else {
             users.remove(name);
         }
     }
-    public JSONObject createJSON(){
+
+    public JSONObject createJSON() {
         JSONObject messageJSON = new JSONObject();
         messageJSON.put("name", name);
-        if(password.equals("")){
+        if (password.equals("")) {
             messageJSON.put("lock", "false");
-        }else {
+        } else {
             messageJSON.put("lock", "true");
         }
         messageJSON.put("usersnum", getUsersNumber());
