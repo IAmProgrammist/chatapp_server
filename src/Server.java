@@ -12,6 +12,7 @@ public class Server {
 
 
     private static class Handler extends Thread {
+        public boolean connected;
 
 
         private String[] getAllRooms() {
@@ -26,12 +27,15 @@ public class Server {
             }
             return room.toArray(new String[0]);
         }
+        public void throwException() throws TimeToExitBruhException{
+            throw new TimeToExitBruhException();
+        }
 
         public void run() {
             User user = new User();
             ConsoleHelper.writeMessage("Подключение установлено с: " + socket.getRemoteSocketAddress());
             try (Connection connection = new Connection(socket)) {
-                HardMessage msg;
+                HardMessage msg = new HardMessage();
                 String nickname;
                 Message tmpaMessage = new Message();
                 tmpaMessage.setType(MessageType.CONNECTED);
@@ -43,7 +47,12 @@ public class Server {
                 LoginNPassword roomcr = null;
                 Integer roomId = null;
                 while (true) {
-                    msg = (HardMessage) connection.receive();
+                    msg.setType(MessageType.IGNORE);
+                        try {
+                            msg = (HardMessage) connection.receive();
+                        }catch (Exception e){
+                            throw new TimeToExitBruhException();
+                        }
                     if (msg.getType() == MessageType.LOGIN_ROOM_IN_CHECK) {
                         connection.sendRooms(rooms);
                     } else if (msg.getType() == MessageType.CREATE_ROOM_IN_CHECK) {
@@ -187,10 +196,33 @@ public class Server {
                 } else {
                     ConsoleHelper.writeMessage(String.format("В комнату вошел пользователь с именем: '%s' и паролем: '%s'", roomlo.getLogin(), roomlo.getPassword()));
                 }
-                user.setConnection(connection);
                 while (true) {
                     user.setRoomId(String.valueOf(roomId));
+                    user.setConnection(connection);
                     connection.sendHistory(peepeepoopoo, 50, roomId);
+                    Thread checker = new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while(!isInterrupted()){
+                                try {
+                                    Message msg = new Message();
+                                    msg.setType(MessageType.CHECK_CONN);
+                                    try {
+                                        connection.send(msg);
+                                    }catch (TimeToExitBruhException e){
+                                        break;
+                                    }
+                                    Thread.sleep(30000);
+                                    if(!connected) {
+                                        connection.throwException();
+                                    }
+                                }catch (Exception e){
+                                    connection.throwException();
+                                }
+                            }
+                        }
+                    });
+                    checker.start();
                     connectionMap.put(user.getName(), user);
                     notifyUsers(connection, user);
                     HardMessage users = new HardMessage();
@@ -199,6 +231,7 @@ public class Server {
                     connection.send(users);
                     serverMainLoop(connection, user);
                     ConsoleHelper.writeMessage("СерверМэйнЛуп загнувся.");
+                    checker.stop();
                     connectionMap.remove(user.getName());
                     Message tmppMessage = new Message();
                     tmppMessage.setType(MessageType.USER_REMOVED);
@@ -208,7 +241,12 @@ public class Server {
                     removeUser(user.getName(), roomId);
                     sendBroadcastMessage(tmppMessage);
                     while (true) {
-                        msg = (HardMessage) connection.receive();
+                        msg.setType(MessageType.IGNORE);
+                            try {
+                                msg = (HardMessage) connection.receive();
+                            }catch (Exception e){
+                                throw new TimeToExitBruhException();
+                            }
                         if (msg.getType() == MessageType.LOGIN_ROOM_IN_CHECK) {
                             connection.sendRooms(rooms);
                         } else if (msg.getType() == MessageType.CREATE_ROOM_IN_CHECK) {
@@ -315,11 +353,15 @@ public class Server {
                 tmppMessage.setType(MessageType.USER_REMOVED);
                 tmppMessage.setSender(user.getName());
                 tmppMessage.setRoomId(user.getRoomId());
-                removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
-                peepeepoopoo.put(new Date(), tmppMessage);
-                sendBroadcastMessage(tmppMessage);
+                try {
+                    removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
+                    peepeepoopoo.put(new Date(), tmppMessage);
+                    sendBroadcastMessage(tmppMessage);
+                    ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
+                }catch (Exception e1){
+                    ConsoleHelper.writeMessage("Пользователь отключился.");
+                }
                 this.stop();
-                ConsoleHelper.writeMessage("Соединение разорвано");
             } catch (ClassNotFoundException e) {
                 ConsoleHelper.writeMessage("Класс не найден в Хэндлере");
             } catch (TimeToExitBruhException e) {
@@ -333,30 +375,36 @@ public class Server {
                 tmppMessage.setType(MessageType.USER_REMOVED);
                 tmppMessage.setSender(user.getName());
                 tmppMessage.setRoomId(user.getRoomId());
-                removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
-                peepeepoopoo.put(new Date(), tmppMessage);
-                sendBroadcastMessage(tmppMessage);
-                ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
+                try {
+                    removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
+                    peepeepoopoo.put(new Date(), tmppMessage);
+                    sendBroadcastMessage(tmppMessage);
+                    ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
+                }catch (Exception e1){
+                    ConsoleHelper.writeMessage("Пользователь отключился.");
+                }
                 this.stop();
             } catch (NullPointerException e) {
                 try {
-                    if (user.getName() != null) {
-                        ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
-                    } else {
-                        ConsoleHelper.writeMessage("Пользователь отключился, даже не войдя... Грубо...");
-                    }
-                } catch (NullPointerException e1) {
-                    ConsoleHelper.writeMessage("Пользователь отключился, даже не войдя... Грубо...");
+                    socket.close();
+                } catch (IOException ex) {
+                    ex.printStackTrace();
                 }
+                connectionMap.remove(user.getName());
+                Message tmppMessage = new Message();
+                tmppMessage.setType(MessageType.USER_REMOVED);
+                tmppMessage.setSender(user.getName());
+                tmppMessage.setRoomId(user.getRoomId());
+                try {
+                    removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
+                    peepeepoopoo.put(new Date(), tmppMessage);
+                    sendBroadcastMessage(tmppMessage);
+                    ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
+                }catch (Exception e1){
+                    ConsoleHelper.writeMessage("Пользователь отключился.");
+                }
+                this.stop();
             }
-            Message tmppMessage = new Message();
-            tmppMessage.setType(MessageType.USER_REMOVED);
-            tmppMessage.setSender(user.getName());
-            tmppMessage.setRoomId(user.getRoomId());
-            removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
-            peepeepoopoo.put(new Date(), tmppMessage);
-
-            sendBroadcastMessage(tmppMessage);
         }
 
         private static void removeUser(String name, Integer roomId) {
@@ -458,9 +506,13 @@ public class Server {
 
 
         private void serverMainLoop(Connection connection, User user) throws IOException, ClassNotFoundException, TimeToExitBruhException {
-
             while (true) {
-                Message message = connection.receive();
+                Message message = new Message();
+                try {
+                    message = connection.receive();
+                }catch (Exception e){
+                    throw new TimeToExitBruhException();
+                }
                 if (message.getType() == MessageType.TEXT) {
                     Message fmessage = new Message();
                     fmessage.setType(MessageType.TEXT);
@@ -482,15 +534,14 @@ public class Server {
                     connection.send(tmpMessage);
                     break;
                 } else if(message.getType().equals(MessageType.CONN_CONN)){
-                    Server.connected = true;
+                    connected = true;
                 }else{
                     ;;
                 }
-
             }
         }
 
-        private void notifyUsers(Connection connection, User user) throws IOException {
+        private void notifyUsers(Connection connection, User user) throws IOException, TimeToExitBruhException {
             Message tmpMessage = new Message();
             for (Map.Entry<String, User> lol : connectionMap.entrySet()) {
                 if (lol.getValue().getRoomId().equals(user.getRoomId())) {
@@ -514,11 +565,15 @@ public class Server {
 
     }
 
-    public static void sendBroadcastMessage(Message message) {
+    public static void sendBroadcastMessage(Message message){
         try {
             for (User user : connectionMap.values()) {
                 if (user.getRoomId().equals(message.getRoomId())) {
-                    user.getConnection().send(message);
+                    try {
+                        user.getConnection().send(message);
+                    }catch (TimeToExitBruhException e){
+                        connectionMap.remove(user);
+                    }
                 }
             }
         } catch (IOException e) {
@@ -536,60 +591,6 @@ public class Server {
         InetAddress addr = InetAddress.getLocalHost();
         String myLANIP = addr.getHostAddress();
         ConsoleHelper.writeMessage(myLANIP + " - ваш внешний IP-адрес.");
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        if (connectionMap.size() != 0) {
-
-                            for (Map.Entry<String, User> klol : connectionMap.entrySet()) {
-                                ConsoleHelper.writeMessage("Checking user " + klol.getKey());
-                                if (klol.getValue().getConnection() != null) {
-                                    if (klol.getValue().getConnection().socket.isConnected()) {
-                                        HardMessage msg = new HardMessage();
-                                        msg.setType(MessageType.CHECK_CONN);
-                                        klol.getValue().getConnection().send(msg);
-                                        Thread.sleep(20000);
-                                        if (connected) {
-                                            //ConsoleHelper.writeMessage(klol.getKey() + " is ok.");
-                                            connected = false;
-                                        } else {
-                                            connectionMap.remove(klol.getKey());
-                                            ConsoleHelper.writeMessage(klol.getKey() + " was removed.");
-                                            connected = false;
-                                            Message tmppMessage = new Message();
-                                            tmppMessage.setType(MessageType.USER_REMOVED);
-                                            tmppMessage.setSender(klol.getValue().getName());
-                                            tmppMessage.setRoomId(klol.getValue().getRoomId());
-                                            Handler.removeUser(klol.getValue().getName(), Integer.valueOf(klol.getValue().getRoomId()));
-                                            peepeepoopoo.put(new Date(), tmppMessage);
-                                            peepeepoopoo = peepeepoopoo;
-                                            sendBroadcastMessage(tmppMessage);
-                                        }
-                                    } else {
-                                        connectionMap.remove(klol.getKey());
-                                        ConsoleHelper.writeMessage("Deleting user " + klol.getKey() + "...");
-                                        Message tmppMessage = new Message();
-                                        tmppMessage.setType(MessageType.USER_REMOVED);
-                                        tmppMessage.setSender(klol.getValue().getName());
-                                        tmppMessage.setRoomId(klol.getValue().getRoomId());
-                                        peepeepoopoo.put(new Date(), tmppMessage);
-                                        Handler.removeUser(klol.getValue().getName(), Integer.valueOf(klol.getValue().getRoomId()));
-                                        sendBroadcastMessage(tmppMessage);
-                                        connected = false;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
         try (ServerSocket serverSocket = new ServerSocket(serverPort)) {
             ConsoleHelper.writeMessage("Сервер запущен");
             while (true) {
@@ -602,8 +603,6 @@ public class Server {
             e.printStackTrace();
         }
     }
-
-    private static boolean connected = false;
 
     private static String getCurrentIP() {
         String result = null;
