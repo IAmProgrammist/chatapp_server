@@ -56,6 +56,7 @@ public class Message implements Serializable {
             messageJSON.put("data", data);
         }
         messageJSON.put("sender", sender);
+        messageJSON.put("date", date.getTime());
         return messageJSON;
     }
 }

@@ -16,7 +16,9 @@ public class MySQLConnUtils {
         String hostName = "localhost";
         String dbName = "rovchat?useUnicode=true&characterEncoding=utf-8";
         String userName = "root";
-        String password = "rvn156258";
+        String password = "RChat2019";
+        //"rvn156258" for local tests
+        //"RChat2019" for global release
         return getMySQLConnection(hostName, dbName, userName, password);
     }
 

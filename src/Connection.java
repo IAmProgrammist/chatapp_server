@@ -82,30 +82,31 @@ public class Connection implements Closeable {
         }
     }
 
-    public void sendHistory(Map<Date, Message> messages, int number, int roomId) {
+    public void sendHistory(Map<Date, Message> history, int number, int roomId) throws IOException, TimeToExitBruhException {
         synchronized (writer) {
-            List<JSONObject> h = new ArrayList<>();
-            JSONArray jsonArray = new JSONArray();
-            int i = 1;
-            for (Map.Entry<Date, Message> j : messages.entrySet()) {
-                if (Integer.parseInt(j.getValue().getRoomId()) == roomId) {
-                    h.add(j.getValue().createJSON(j.getKey()));
-                    i++;
+                List<JSONObject> h = new ArrayList<>();
+                JSONArray jsonArray = new JSONArray();
+                int i = 1;
+                for (Map.Entry<Date, Message> j : history.entrySet()) {
+                    if (Integer.parseInt(j.getValue().getRoomId()) == roomId && j.getValue().getType() == MessageType.TEXT) {
+                        h.add(j.getValue().createJSON(j.getKey()));
+                        i++;
+                    }
+                    if (i == number) {
+                        break;
+                    }
                 }
-                if (i == number) {
-                    break;
+                Collections.reverse(h);
+                for (JSONObject a : h) {
+                    jsonArray.put(a);
                 }
-            }
-            Collections.reverse(h);
-            for (JSONObject a : h) {
-                jsonArray.put(a);
-            }
-            JSONObject root = new JSONObject();
-            root.put("array", jsonArray);
-            root.put("type", MessageType.HISTORY);
-            String res = root.toString();
-            ConsoleHelper.writeMessage("Sending: " + res);
-            writer.println(res);
+                JSONObject root = new JSONObject();
+                root.put("array", jsonArray);
+                root.put("type", MessageType.HISTORY);
+                String res = root.toString();
+                ConsoleHelper.writeMessage("Sending: " + res);
+                writer.println(res);
+
         }
     }
 

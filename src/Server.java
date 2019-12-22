@@ -9,9 +9,11 @@ public class Server {
     private static List<Room> rooms = Collections.synchronizedList(new ArrayList<>());
     public static Map<Date, Message> peepeepoopoo = Collections.synchronizedMap(new TreeMap<>(Collections.reverseOrder()));
     private static Integer roomsId = 0;
+    private static String versionName = "1.5";
 
 
     private static class Handler extends Thread {
+        Thread checker;
         public boolean connected;
 
 
@@ -40,7 +42,8 @@ public class Server {
                 String nickname;
                 Message tmpaMessage = new Message();
                 tmpaMessage.setType(MessageType.CONNECTED);
-                tmpaMessage.setData("ЭТО ПОЛЕ Я УСТАНОВИЛ САМОСТОЯТЕЛЬНО, НО ПОЛЕ ROOMID ОТСУТСТВУЕТ (!)");
+                tmpaMessage.setSender(versionName);
+                tmpaMessage.setData("*Убран эльфийский язык, теперь RChat умеет говорить по-русски!" + "\n" + "*Мелкие устранения ошибок!" + "\n" + "*Подробнее на сайте");
                 connection.send(tmpaMessage);
                 LoginNPassword userln = null;
                 LoginNPassword userre = null;
@@ -200,8 +203,8 @@ public class Server {
                 while (true) {
                     user.setRoomId(String.valueOf(roomId));
                     user.setConnection(connection);
-                    connection.sendHistory(peepeepoopoo, 50, roomId);
-                    Thread checker = new Thread(new Runnable() {
+                    connection.sendHistory(peepeepoopoo, 250, roomId);
+                    checker = new Thread(new Runnable() {
                         @Override
                         public void run() {
                             while (!isInterrupted()) {
@@ -349,6 +352,11 @@ public class Server {
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
+                try {
+                    checker.stop();
+                }catch (Exception e1){
+
+                }
                 connectionMap.remove(user.getName());
                 Message tmppMessage = new Message();
                 tmppMessage.setType(MessageType.USER_REMOVED);
@@ -364,12 +372,22 @@ public class Server {
                 }
                 this.stop();
             } catch (ClassNotFoundException e) {
+                try {
+                    checker.stop();
+                }catch (Exception e1){
+
+                }
                 ConsoleHelper.writeMessage("Класс не найден в Хэндлере");
             } catch (TimeToExitBruhException e) {
                 try {
                     socket.close();
                 } catch (IOException ex) {
                     ex.printStackTrace();
+                }
+                try {
+                    checker.stop();
+                }catch (Exception e1){
+
                 }
                 connectionMap.remove(user.getName());
                 Message tmppMessage = new Message();
@@ -387,22 +405,31 @@ public class Server {
                 this.stop();
             } catch (NullPointerException e) {
                 try {
+                    checker.stop();
+                }catch (Exception e1){
+
+                }
+                try {
                     socket.close();
                 } catch (IOException ex) {
                     ex.printStackTrace();
                 }
-                connectionMap.remove(user.getName());
-                Message tmppMessage = new Message();
-                tmppMessage.setType(MessageType.USER_REMOVED);
-                tmppMessage.setSender(user.getName());
-                tmppMessage.setRoomId(user.getRoomId());
                 try {
-                    removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
-                    peepeepoopoo.put(new Date(), tmppMessage);
-                    sendBroadcastMessage(tmppMessage);
-                    ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
-                } catch (Exception e1) {
-                    ConsoleHelper.writeMessage("Пользователь отключился.");
+                    connectionMap.remove(user.getName());
+                    Message tmppMessage = new Message();
+                    tmppMessage.setType(MessageType.USER_REMOVED);
+                    tmppMessage.setSender(user.getName());
+                    tmppMessage.setRoomId(user.getRoomId());
+                    try {
+                        removeUser(user.getName(), Integer.valueOf(user.getRoomId()));
+                        peepeepoopoo.put(new Date(), tmppMessage);
+                        sendBroadcastMessage(tmppMessage);
+                        ConsoleHelper.writeMessage("Пользователь '" + user.getName() + "' отключился.");
+                    } catch (Exception e1) {
+                        ConsoleHelper.writeMessage("Пользователь отключился.");
+                    }
+                }catch (NullPointerException e1){
+                    ConsoleHelper.writeMessage("Пропинговано соединение");
                 }
                 this.stop();
             }
@@ -535,9 +562,6 @@ public class Server {
                     break;
                 } else if (message.getType().equals(MessageType.CONN_CONN)) {
                     connected = true;
-                } else {
-                    ;
-                    ;
                 }
             }
         }
